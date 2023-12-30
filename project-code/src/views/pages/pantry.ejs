@@ -28,6 +28,13 @@
             <div class="pan col bg-success-subtle border-start border-4" style="max-height: 100%;">
                 <table style="margin-top: 10px;">
                     <tr>
+                        <th style="font-size:x-large">Upload an image of pantry</th>
+                    </tr>
+                    <form action="/pantry/imageAdd" method="post" enctype="multipart/form-data">
+                        <input name="image" type="file" accept=".jpeg, .png, .jpg">
+                        <button type="submit">Submit</button>
+                    </form>
+                    <tr>
                         <th style="font-size:x-large">Add Ingredients</th>
                     </tr>
                     <tr>
@@ -43,7 +50,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <th style="font-size:x-large">Quick Add Ingredients</th>
+                        <th style="font-size:x-large">Search Ingredients</th>
                     </tr>
                     <tr>
                         <td>

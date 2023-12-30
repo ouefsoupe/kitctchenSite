@@ -714,6 +714,72 @@ app.post("/pantry/uniqueadd", async (req, res) => {
 });
 
 
+const OpenAI = require('openai');
+const openai = new OpenAI();
+const path = require('path')
+// const multerS3 = require('multer-s3');
+const multer = require('multer');
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'images')
+  },
+  filename: (req, file, cb) => {
+    console.log(file);
+    cb(null, Date.now() + '-' + path.extname(file.originalname))
+  }
+})
+
+const upload = multer({storage: storage})
+
+
+// const s3 = new AWS.S3();
+
+// const upload = multer({
+//   storage: multerS3({
+//     s3: s3,
+//     bucket: 'kitchenimage',
+//     acl: 'public-read', // Make sure the uploaded files are publicly readable
+//     key: function (req, file, cb) {
+//       cb(null, Date.now().toString() + '-' + file.originalname); // Use a unique name for each file
+//     }
+//   })
+// });
+
+app.use('/images', express.static('images'));
+
+// app.post('/pantry/imageAdd', upload.single('uploadFile'), async (req, res) => {
+app.post('/pantry/imageAdd', upload.single("image"), async (req, res) => {
+  // const imageUrl = URL.createObjectURL(req.body.file_name);
+  const imageUrl = req.protocol + '://' + req.get('host') + '/images/' + req.file.filename;
+  console.log(imageUrl);
+  const response = await openai.chat.completions.create({
+    model: "gpt-4-vision-preview",
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: "What are in these images? Is there any difference between them?" },
+          {
+            type: "image_url",
+            image_url: {
+              "url": imageUrl,
+            },
+          },
+          {
+            type: "image_url",
+            image_url: {
+              "url": imageUrl,
+            },
+          }
+        ],
+      },
+    ],
+  });
+  console.log(response.choices[0]);
+  res.redirect('/pantry'); // Redirect to the pantry page
+});
+
+
 
 app.get("/logout", (req, res) => {
   req.session.destroy();
@@ -721,4 +787,4 @@ app.get("/logout", (req, res) => {
 });
 
 module.exports = app.listen(3000);
-console.log("Server listening on port 3000"); 
+console.log("Server listening on port 3000");
